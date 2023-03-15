@@ -35,7 +35,8 @@ fun HTML.index() {
 }
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "127.0.0.1", module = Application::myApplicationModule).start(wait = true)
+    val port = System.getenv("PORT")?.toInt() ?: 8080
+    embeddedServer(Netty, port = port, host = "localhost", module = Application::myApplicationModule).start(wait = true)
 }
 
 fun Application.configureRouting() {
