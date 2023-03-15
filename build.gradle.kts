@@ -1,8 +1,9 @@
+
 plugins {
     kotlin("multiplatform") version "1.8.10"
     kotlin("plugin.serialization") version "1.8.10"
     id("org.openapi.generator") version "6.4.0"
-    application
+    id("io.ktor.plugin") version "2.2.4"
 }
 
 group = "me.ignacio"
@@ -11,6 +12,12 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven("https://kotlin.bintray.com/kotlinx")
+}
+
+ktor {
+    fatJar {
+        archiveFileName.set("app.jar")
+    }
 }
 
 // Validating a single specification
