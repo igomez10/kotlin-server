@@ -1,3 +1,5 @@
 /.gradle/*
 /.idea/*
 /build/**
+# ignore build folder
+.DS_Store
