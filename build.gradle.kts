@@ -1,7 +1,14 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 
 plugins {
     kotlin("multiplatform") version "1.8.10"
     kotlin("plugin.serialization") version "1.8.10"
+    kotlin("plugin.spring") version "1.8.0"
+    kotlin("plugin.jpa") version "1.8.0"
+
+    id("org.springframework.boot") version "3.0.4"
+    id("io.spring.dependency-management") version "1.1.0"
     id("org.openapi.generator") version "6.4.0"
     id("io.ktor.plugin") version "2.2.4"
 }
@@ -11,7 +18,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    maven("https://kotlin.bintray.com/kotlinx")
+    jcenter()
 }
 
 ktor {
@@ -22,14 +29,13 @@ ktor {
 
 // Validating a single specification
 openApiValidate {
-//    val inputSpec:Property<String> = project.objects.property(String::class.java)
     inputSpec.set("./openapi.yaml")
 }
 
 openApiGenerate {
     generatorName.set("kotlin")
     inputSpec.set("./openapi.yaml")
-    outputDir.set("$buildDir/generated")
+    outputDir.set("$buildDir/generated/openapi/main")
     apiPackage.set("me.ignacio.api")
     modelPackage.set("me.ignacio.model")
     invokerPackage.set("me.ignacio.invoker")
@@ -47,7 +53,7 @@ openApiGenerate {
 kotlin {
 
     jvm {
-        jvmToolchain(8)
+        jvmToolchain(17)
         withJava()
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
@@ -79,7 +85,6 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
-
                 implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
                 implementation("org.slf4j:slf4j-simple:1.7.30")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
@@ -93,6 +98,15 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
                 // ktor_plugins
                 implementation("io.ktor:ktor-server-call-logging:$ktor_version")
+                // spring
+                implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+                implementation("org.springframework.boot:spring-boot-starter-mustache")
+                implementation("org.springframework.boot:spring-boot-starter-web")
+                implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+                implementation("org.jetbrains.kotlin:kotlin-reflect")
+                runtimeOnly("com.h2database:h2")
+                runtimeOnly("org.springframework.boot:spring-boot-devtools")
+
             }
         }
         val jvmTest by getting
@@ -121,4 +135,15 @@ tasks.named<Copy>("jvmProcessResources") {
 tasks.named<JavaExec>("run") {
     dependsOn(tasks.named<Jar>("jvmJar"))
     classpath(tasks.named<Jar>("jvmJar"))
+}
+
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs += "-Xjsr305=strict"
+    }
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

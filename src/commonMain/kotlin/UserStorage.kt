@@ -1,8 +1,17 @@
 class UserStorage: IUserStorage {
-    private var users: List<User> = listOf();
+    private var users: List<User> = listOf()
     override fun getUser(name: String): User? {
         for (user in users) {
             if (user.name == name) {
+                return user
+            }
+        }
+        return null
+    }
+
+    override fun getUserById(id: Int): User? {
+        for (user in users) {
+            if (user.id == id) {
                 return user
             }
         }
@@ -20,7 +29,15 @@ class UserStorage: IUserStorage {
                 users -= user
             }
         }
+    }
 
+    override fun removeUserById(id: Int) {
+        // Remove user from list
+        for (user in users) {
+            if (user.id == id) {
+                users -= user
+            }
+        }
     }
 
     override fun listUsers(): List<User> {
